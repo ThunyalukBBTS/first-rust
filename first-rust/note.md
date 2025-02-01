@@ -61,6 +61,11 @@ btxs@The13OS5-Lenovo ~/Desktop/MyData/ODT/Workspace/rust/first-rust   mast
             let a: [i32; 5] = [1, 2, 3, 4, 5]; // type: i32, length: 5
             ```
     - String is compound type. 
+        - 
+        ```rust
+        let p: &str = "test"; // PTR
+        let mut s: String = String::from("hello"); // object
+        ```
     - type assign `let x:u32 = 500;` unsign int 32
 - function
     - 
@@ -143,3 +148,128 @@ btxs@The13OS5-Lenovo ~/Desktop/MyData/ODT/Workspace/rust/first-rust   mast
         println!("{}", element);
     }
     ```
+    - `{:?}` debug mode print
+    ```rust
+    let a = 1..=5;
+    for _ in (1..=4).rev() {
+        println!("{:?}", a)
+    }
+    ```
+    ```
+    1..=5
+    1..=5
+    1..=5
+    1..=5
+    ```
+    ```rust
+    for element in 1..4 {
+        println!("{}", element) // 1, 2, 3
+    }
+
+    for element in 1..=4 {
+        println!("{}", element) // 1, 2, 3, 4
+    }
+
+    for element in (1..=4).rev() {
+        println!("{}", element) // 4, 3, 2, 1
+    }
+    ```
+- memory management
+    - use stack and heap
+        - stack collect addr then addr map to heap
+    - other language use the garbage collector to clear memory but Rust use ownership rule.
+    - ownership rule
+        1. each value in Rust has an owner
+        2. There can one owner in a time.
+        3. if var not have ownership it will be delete.
+        - Clear memory line by line after it excuted. 
+        ```rust
+        let mut s: String = String::from("hello"); // clear
+        s.push_str(" world"); // allocate stack and heap again
+        println!("{}", s);
+        ```
+        - if the var is scalar it copy and paste it to new allocated memory.
+        - but object it changed only stack PTR but heap not cleared.
+        ```rust
+        let s1: String = String::from("hello");
+        let s2 = s1; // ownership s1 transfer to s2
+        println!("{}", s1); // error
+        ```
+        - function
+        ```rust
+        fn main() {
+            let s = String::from("hello");
+            takes_ownership(s);
+            println!("{}", s); // error borrow of moved value
+            let x = 5;
+            make_copy(x);
+            println!("{}", x); // not error
+        }
+
+        fn takes_ownership(some_string: String) {
+            println!("{some_string}");
+        }
+
+        fn make_copy(some_string: i32) {
+            println!("{some_string}")
+        }
+
+        //----------------------------------------------
+
+        fn give_ownership() -> String {
+            let string = String::from("test");
+            string // transfer ownership to returned value
+        }
+
+        // --------------------------------------------
+        fn main() {
+            let s1 = give_ownership();
+            let s2 = String::from(s1);
+            println!("{}", s2);
+            let s3 = String::from(s2);
+            println!("{}", s2); // error
+        }            
+        ```
+        ```rust
+        fn main() {
+            let s1 = String::from("hello");
+            let len = calc_length(s1); // type err (&s1)
+            println!("{}", len)
+        }
+
+        fn calc_length(s: &String) -> usize {
+            s.len()
+        }
+
+        // --------------------------------------------
+        fn main() {
+            let s1 = String::from("hello");
+            let len = calc_length(&s1); // not transfer ownership
+            println!("{}", len);
+            println!("{}", s1); // not error !
+        }
+
+        ```
+        ```rust
+        fn main() {
+            let mut s1 = String::from("hello");
+            change(&mut s1);
+            println!("{s1}"); // not error
+        }
+
+        fn change(s: &mut String) {
+            s.push_str(" world");
+        }
+        ```
+        - concurrent access memory
+            - garuntee that two pointer at least 1 pointer can access memory. 
+        ```rust
+        fn main() {
+            let mut s = String::from("hello");
+            let s1 = &mut s;
+            let s2 = &mut s; // error can't borrow more than 1 owner
+
+            println!("{s1} {s2}");
+        }
+        ```
+        

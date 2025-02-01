@@ -1,6 +1,7 @@
 fn main() {
-    let a = [10, 20, 30, 40, 50];
-    for element in a {
-        println!("{}", element);
-    }
+    let mut s = String::from("hello");
+    let s1 = &mut s;
+    let s2 = &mut s;
+
+    println!("{s1} {s2}");
 }
