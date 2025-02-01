@@ -149,6 +149,7 @@ btxs@The13OS5-Lenovo ~/Desktop/MyData/ODT/Workspace/rust/first-rust   mast
     }
     ```
     - `{:?}` debug mode print
+    - `{:p}` pointer print
     ```rust
     let a = 1..=5;
     for _ in (1..=4).rev() {
@@ -271,5 +272,105 @@ btxs@The13OS5-Lenovo ~/Desktop/MyData/ODT/Workspace/rust/first-rust   mast
 
             println!("{s1} {s2}");
         }
+        // --------------------------------------
+            let mut s = String::from("hello");
+            {
+                let s1 = &mut s;
+            }
+            let s2 = &mut s; // not error (difference scope)
         ```
+        ```rust
+        fn main() {
+            let mut s = String::from("hello");
+            let r1 = &s;
+            let r2 = &s;
+            let r3 = &mut s;
+            println!("{r1} {r2} {r3}"); // cannot borrow `s` as mutable because it is also borrowed as immutable
+        }
+
         
+        // --------------------------------------
+        fn main() {
+            let mut s = String::from("hello");
+            let r1 = &s;
+            let r2 = &s;
+            println!("{r1} {r2}");
+            let r3 = &mut s;
+            println!("{r3}");
+        }
+        ```
+        - some situation shouldn't to take ownership but receive only references.
+        ```rust 
+        fn calc_length(s: &String) -> usize {
+            s.len()
+        }
+        ```
+        ```rust
+        fn main() {
+            let x = dangle(); // error: can't references to "hello" in heap
+        }
+
+        fn dangle() -> &String {
+            let s = String::from("hello"); // delete on finish function
+            &s
+        }
+        ```
+        - The reference rules
+            - reference can map mutable only 1 value
+            - reference must be valid
+        - ex.
+        ```rust
+        fn main() {
+            let x = String::from("this is a cat");
+            println!("{}", first_word(&x));
+        }
+
+        fn first_word(s: &String) -> usize {
+            let bytes = s.as_bytes();
+            for (idx, &value) in bytes.iter().enumerate() {
+                if value == b' ' {
+                    return idx;
+                }
+            }
+            s.len()
+        }
+        ```
+    - slice type
+        - [start..=stop] : stop included
+        - [start..stop] : stop not included
+        - [..] : all
+        ```rust
+        fn main() {
+            let s = String::from("hello world");
+            let hello = &s[0..5];
+            let world = &s[6..11];
+            println!("{}{}", hello, world) // helloworld
+        }
+        ```
+        ```rust
+                fn main() {
+            let x = String::from("this is a cat");
+            println!("{}", first_word(&x)); // this
+        }
+
+        fn first_word(s: &String) -> &str {
+            let bytes = s.as_bytes();
+            for (idx, &value) in bytes.iter().enumerate() {
+                if value == b' ' {
+                    return &s[0..idx];
+                }
+            }
+            &s[..]
+        }
+        ```
+    - &str
+        - collect in rodata (read only data)
+        - 
+        ```rust
+        fn main() {
+            let s1 = "hello";
+            let s2 = "hello";
+            println!("{:p} {:p}", s1, s2);
+            // 0x627fe163d040 0x627fe163d040
+        }
+        ```

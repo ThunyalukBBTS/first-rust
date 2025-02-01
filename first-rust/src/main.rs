@@ -1,7 +1,11 @@
-fn main() {
-    let mut s = String::from("hello");
-    let s1 = &mut s;
-    let s2 = &mut s;
+fn main() {}
 
-    println!("{s1} {s2}");
+fn first_word(s: &str) -> &str {
+    let bytes = s.as_bytes();
+    for (idx, &value) in bytes.iter().enumerate() {
+        if value == b' ' {
+            return &s[0..idx];
+        }
+    }
+    &s[..]
 }
