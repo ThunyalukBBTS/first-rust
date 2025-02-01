@@ -1,3 +1,6 @@
 fn main() {
-    let a: [i32; 5] = [1, 2, 3, 4, 5];
+    let a = [10, 20, 30, 40, 50];
+    for element in a {
+        println!("{}", element);
+    }
 }

@@ -63,4 +63,83 @@ btxs@The13OS5-Lenovo ~/Desktop/MyData/ODT/Workspace/rust/first-rust   mast
     - String is compound type. 
     - type assign `let x:u32 = 500;` unsign int 32
 - function
+    - 
+    ```rust
+    let a: [i32; 5] = [1, 2, 3, 4, 5];
+    fn my_function(p: &[i32]) {
+        println!("{}", p[2]);
+    }
+    my_function(&a);
+    ```
     - `()` is void in other language or unit type in rust
+    - expression
+    ```rust 
+    let x = {
+        let y = 1;
+        y + 1 // return
+    };
+    println!("{x}");
+    ```
+    -
+    ```rust
+    fn five() -> i32 {
+        5
+    }
+
+    fn main() {
+        let x = five();
+
+        println!("The value of x is: {x}");
+    }
+    ```
+    - return: don't filled `;` in that line
+- control flow
+    - if, else, elif
+    ```rust
+    let num = 3;
+    if num != 5 {
+        print!("not five");
+    } else if num > 5 {
+        print!("more than five");
+    } else {
+        print!("five");
+    }
+    ```
+    - condition set value to variable
+    ```rust
+    let condition = true;
+    let num = if condition { 4 } else { 8 };
+    ```
+    - loop 
+    ```rust
+    loop {
+        println!("GG"); // infinite loop
+    }
+    ```
+
+    ```rust
+    let mut counter = 0;
+    loop {
+        println!("GG");
+        counter += 1;
+        if counter >= 10 {
+            break;
+        }
+    }
+    ```
+    - while
+    ```rust
+    let a = [10, 20, 30, 40, 50];
+    let mut idx = 0;
+    while idx < a.len() {
+        println!("{}", a[idx]);
+        idx += 1;
+    }
+    ```
+    - for: array 
+    ```rust
+    let a = [10, 20, 30, 40, 50];
+    for element in a {
+        println!("{}", element);
+    }
+    ```
