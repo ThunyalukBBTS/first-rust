@@ -1307,3 +1307,56 @@ fn returns_summarize(switch: bool) -> Box<dyn Summary> {
     }
 }
 ```
+- example
+```rust
+struct Pair<T> {
+    x: T,
+    y: T,
+}
+
+impl<T> Pair<T> {
+    fn new(x: T, y: T) -> Self {
+        Self { x, y }
+    }
+}
+
+impl<T: PartialOrd + Display> Pair<T> {
+    fn cmp_display(&self) {
+        if self.x >= self.y {
+            println!("The largest number is x = {}", self.x);
+        } else {
+            println!("The largest number is y = {}", self.y);
+        }
+    }
+}
+```
+## From: Type converting
+```rust
+fn main() {
+    let num = Number::from(5);      // <--
+    let five = 5;
+    let num2: Number = five.into(); // <--
+}
+
+struct Number {
+    value: i32,
+}
+impl From<i32> for Number {
+    fn from(value: i32) -> Self {
+        Number { value }
+    }
+}
+```
+## Life-time
+- use `'a` to ensure that variable has a life-time enough
+- use `'static` variable still be in memory untill finish program
+```rust
+fn main() {
+    let r: &i32;
+    {
+        let x: i32 = 5;
+        r = &x; // `x` does not live long enough borrowed value does not live long enough
+    }
+    println!("{}", r)
+}
+```
