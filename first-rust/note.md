@@ -1219,3 +1219,91 @@ impl Summary for Tweet {
     }
 }
 ```
+- call default
+```rust
+trait Summary {
+    fn summarize_author(&self) -> String;
+
+    fn summarize(&self) -> String {
+        format!("(Read more...) {}", self.summarize_author())
+    }
+}
+
+impl Summary for Tweet {
+    fn summarize_author(&self) -> String {
+        format!("@{}", self.username)
+    }
+}
+```
+- function that accept multiple types that has a behavior
+```rust 
+// both Tweet and NewsArticle can use this method
+fn notify(item: &impl Summary) {
+    println!("Breaking news! {}", item.summarize());
+}
+```
+```rust
+fn notify(item: &impl Summary, item2: &impl Summary) {
+    println!("Breaking news! {} {}", item.summarize(), item2.summarize())
+}
+// -----------------------------------------------
+fn notify<T: Summary>(item: &T, item2: &T) {
+    println!("Breaking news! {} {}", item.summarize(), item2.summarize())
+}
+```
+- has multiple behavior
+```rust
+fn notify(item: &(impl Summary + Display)) {
+    println!("Breaking news! {}", item.summarize())
+}
+```
+- select sub-behavior
+```rust
+fn some_func<T, U>(t: &T, u: &U) -> i32
+where
+    T: Display + Clone,
+    U: Clone + Debug,
+{
+    
+}
+```
+- incompatible types
+```rust
+fn returns_summarize(switch: bool) -> impl Summary {
+    if switch {
+        NewsArticle {
+            headline: String::from("test"),
+            location: String::from("TH"),
+            author: String::from("A"),
+            content: String::from("..."),
+        }
+    } else {
+        // Error !!!
+        Tweet {
+            username: String::from("Test User"),
+            content: String::from("Test 1234566ld;fksdfdlfdsdfds"),
+            reply: false,
+            retweet: false,
+        }
+    }
+}
+// --------------- use this instead -----------------
+fn returns_summarize(switch: bool) -> Box<dyn Summary> {
+    // but Box is slow because it's a fixed size memory
+    if switch {
+        Box::new(NewsArticle {
+            headline: String::from("test"),
+            location: String::from("TH"),
+            author: String::from("A"),
+            content: String::from("..."),
+        })
+    } else {
+        Box::new(Tweet {
+            username: String::from("Test User"),
+            content: String::from("Test 1234566ld;fksdfdlfdsdfds"),
+            reply: false,
+            retweet: false,
+        })
+    }
+}
+```
