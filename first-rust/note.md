@@ -773,7 +773,7 @@ enum UseState {
     B,
 }
 ```
-## Option: None/Some
+- Option: None/Some
 ```rust
 fn main() {
     let five = Some(5);
@@ -785,6 +785,437 @@ fn plus_one(x: Option<i32>) -> Option<i32> {
     match x {
         None => None,
         Some(i) => Some(i + 1),
+    }
+}
+```
+```rust
+fn main() {
+    let five = Some(5);
+    let six = plus_one(five);
+    let none = plus_one(None);
+
+    let dice = 9;
+    match dice {
+        3 => add_fancy_hat(),
+        7 => remove_fancy_hat(),
+        other => move_player(other), // default with params
+        _ => re_roll(), // default
+    }
+}
+
+fn add_fancy_hat() {}
+fn remove_fancy_hat() {}
+fn move_player(num_spaces: u8) {}
+fn re_roll() {}
+```
+```rust
+let config_max = Some(3u8);
+match config_max {
+    Some(max) => println!("The maximun is configured to be {max}"),
+    _ => (),
+}
+// -------------- use this ---------------
+if let Some(max) = config_max {
+    println!("The maximun is configured to be {max}");
+}
+```
+```rust
+let coin = Coin::Penny;
+let mut count = 0;
+
+match coin {
+    Coin::Quarter(state) => println!("Start quarter from {state:?}"),
+    _ => count += 1,
+}
+
+// ----------------------------------
+
+if let Coin::Quarter(state) = coin {
+    println!("Start quarter from {state:?}");
+} else {
+    count += 1;
+    }
+```
+## Vector
+```rust
+let mut v = Vec::new();
+v.push(5);
+v.push(8);
+v.push(10);
+
+let v = vec![1, 2, 3, 4, 5];
+```
+
+```rust
+fn main() {
+    let v = vec![1, 2, 3, 4, 5];
+    let third = v.get(2);
+    match third {
+        Some(third) => println!("The third element is {}", third),
+        None => println!("There is no third element."),
+    }
+}
+```
+- loop print
+```rust
+let mut v = vec![1, 2, 3];
+for i in &v {
+    println!("{i}");
+}
+```
+- loop update value
+```rust
+let mut v = vec![1, 2, 3];
+for i in &mut v {
+    *i += 50;
+}
+```
+- enum vec
+```rust
+let row = vec![SpreadsheetCell::Int(3), SpreadsheetCell::Float(5.5)];
+
+enum SpreadsheetCell {
+    Int(i32),
+    Float(f64),
+    Text(String),
+}
+```
+## Error handling
+- panic: alert and exit
+```rust
+fn main() {
+    panic!("Gooooooooooo");
+}
+```
+```bash
+   Compiling first-rust v0.1.0 (/home/btxs/Desktop/MyData/ODT/Workspace/rust/first-rust)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running `target/debug/first-rust`
+thread 'main' panicked at src/main.rs:2:5:
+Gooooooooooo
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+backtrace will clear memory before kill process in main()
+- built-in enum error
+```rust
+enum Result<T, E> {
+    Ok(T),
+    Err(E),
+}
+```
+- File read
+```rust
+use std::fs::File;
+fn main() {
+    let file_result = File::open("hello.txt");
+    let file: File = match file_result {
+        Ok(file) => file,
+        Err(error) => {
+            panic!("Problem opening the file: {error:?}")
+        }
+    };
+}
+```
+- Danger method!!!: panic by default
+    - `.unwrap()`
+    - `.expect(msg)` can use when you need to panic alert with message
+- read handle error
+```rust
+use std::{
+    fs::File,
+    io::{self, Read},
+};
+
+fn read_username_from_file() -> Result<String, io::Error> {
+    let username_file_result = File::open("hello.txt");
+    let mut username_file = match username_file_result {
+        Ok(file) => file,
+        Err(error) => return Err(error),
+    };
+
+    let mut username = String::new();
+    match username_file.read_to_string(&mut username) {
+        Ok(_) => Ok(username),
+        Err(e) => Err(e),
+    }
+}
+// -----------------------------------------------
+let username_file_result = File::open("hello.txt")?;
+// -------------- instead of ---------------------
+let mut username_file = match username_file_result {
+    Ok(file) => file,
+    Err(error) => return Err(error),
+};
+```
+```rust
+fn read_username_from_file() -> Result<String, io::Error> {
+    let mut username_file = File::open("hello.txt")?;
+    let mut username = String::new();
+    username_file.read_to_string((&mut username))?;
+    Ok(username)
+}
+// -----------------------------------------------
+fn read_username_from_file() -> Result<String, io::Error> {
+    let mut username = String::new();
+    File::open("hello.txt")?.read_to_string((&mut username))?;
+    Ok(username)
+}
+```
+- short read file
+```rust
+use std::fs;
+
+fn read_username_from_file() -> Result<String, io::Error> {
+    fs::read_to_string("hello.txt")
+}
+```
+## Generic type
+```rust
+fn main() {
+    let number_list = vec![34, 50, 25, 100, 65];
+
+    let mut largest = &number_list[0];
+
+    for number in &number_list {
+        if number > largest {
+            largest = number;
+        }
+    }
+
+    println!("The largest number is {largest}");
+
+    let number_list2 = vec![102, 34, 6000, 89, 54, 2, 43, 8];
+
+    let mut largest2 = &number_list2[0];
+
+    for number in &number_list2 {
+        if number > largest2 {
+            largest2 = number;
+        }
+    }
+    println!("The largest number is {largest2}");
+}
+```
+- create shared func
+```rust
+fn main() {
+    let number_list = vec![34, 50, 25, 100, 65];
+
+    println!("The largest number is {}", largest(&number_list));
+
+    let number_list2 = vec![102, 34, 6000, 89, 54, 2, 43, 8];
+
+    println!("The largest number is {}", largest(&number_list2));
+}
+
+fn largest(list: &Vec<i32>) -> &i32 {
+    let mut largest = &list[0];
+
+    for number in list {
+        if number > largest {
+            largest = number;
+        }
+    }
+    largest
+}
+```
+- duplicated function type
+```rust
+fn main() {
+
+    let char_list = vec!['y', 'm', 'a', 'q'];
+
+    let result = largest_char(&char_list);
+    println!("The largest char is {result}");
+}
+
+fn largest(list: &Vec<i32>) -> &i32 {
+    let mut largest = &list[0];
+
+    for number in list {
+        if number > largest {
+            largest = number;
+        }
+    }
+    largest
+}
+
+fn largest_char(list: &[char]) -> &char {
+    let mut largest = &list[0];
+
+    for item in list {
+        if item > largest {
+            largest = item;
+        }
+    }
+
+    largest
+}
+```
+```rust
+fn largest<T>(list: &Vec<T>) -> &T {
+    let mut largest = &list[0];
+
+    for each in list {
+        if each > largest {
+            largest = each;
+        }
+    }
+    largest
+}
+```
+- binary operation `>` cannot be applied to type `&T` : `<T: PartialOrd>`
+```rust
+fn main() {
+
+    let char_list = vec!['y', 'm', 'a', 'q'];
+
+    let result = largest(&char_list);
+    println!("The largest char is {result}");
+}
+
+fn largest<T: PartialOrd>(list: &Vec<T>) -> &T {
+    let mut largest = &list[0];
+
+    for each in list {
+        if each > largest {
+            largest = each;
+        }
+    }
+    largest
+}
+```
+- struct
+```rust
+struct Point<T> {
+    x: T,
+    y: T,
+}
+fn main() {
+    let integer = Point { x: 5, y: 4 };
+    let float = Point { x: 5.5, y: 333.3 };
+}
+```
+- struct difference type
+```rust
+fn main() {
+    let integer = Point { x: 5, y: 4 };
+    let float = Point { x: 5.5, y: 333.3 };
+}
+
+struct Point<T, U> {
+    x: T,
+    y: U,
+}
+```
+- struct implement
+```rust
+fn main() {
+    let integer = Point { x: 5, y: 4 };
+    let float = Point { x: 5.5, y: 5 };
+    println!("{}", integer.x());
+}
+
+struct Point<T, U> {
+    x: T,
+    y: U,
+}
+
+impl<T, U> Point<T, U> {
+    fn x(&self) -> &T {
+        &self.x
+    }
+}
+```
+- mix type
+```rust
+fn main() {
+    let p1 = Point { x: 5, y: 10.1 };
+    let p2 = Point { x: "hello", y: 'c' };
+    let p3 = p1.mixup(p2);
+    // p3.x = 5, p3.y = 'c'
+    println!("p3.x = {} , p3.y = {}", p3.x, p3.y);
+}
+
+struct Point<X1, Y1> {
+    x: X1,
+    y: Y1,
+}
+
+impl<X1, Y1> Point<X1, Y1> {
+    fn mixup<X2, Y2>(self, other: Point<X2, Y2>) -> Point<X1, Y2> {
+        Point {
+            x: self.x,
+            y: other.y,
+        }
+    }
+}
+```
+## Trait: Behavior like 'Interface' of Java
+```rust
+fn main() {
+    let tweet = Tweet {
+        username: String::from("Test User"),
+        content: String::from("Test 1234566ld;fksdfdlfdsdfds"),
+        reply: false,
+        retweet: false,
+    };
+    println!("{}", tweet.summarize());
+}
+
+trait Summary {
+    fn summarize(&self) -> String;
+}
+
+struct NewsArticle {
+    headline: String,
+    location: String,
+    author: String,
+    content: String,
+}
+
+impl Summary for NewsArticle {
+    fn summarize(&self) -> String {
+        format!("{}, by {} ({})", self.headline, self.author, self.location)
+    }
+}
+
+impl Summary for Tweet {
+    fn summarize(&self) -> String {
+        format!("{}: {}", self.username, self.content)
+    }
+}
+
+struct Tweet {
+    username: String,
+    content: String,
+    reply: bool,
+    retweet: bool,
+}
+
+```
+- default
+```rust
+trait Summary {
+    // default func
+    fn summarize(&self) -> String {
+        String::from("(Read more...)")
+    }
+}
+impl Summary for Tweet {}
+```
+- override
+```rust
+trait Summary {
+    fn summarize(&self) -> String {
+        String::from("(Read more...)")
+    }
+}
+
+impl Summary for Tweet {
+    // override method
+    fn summarize(&self) -> String {
+        format!("{}: {}", self.username, self.content)
     }
 }
 ```
